@@ -18,13 +18,13 @@ SELECT * FROM layoffs;
 
 -- Rename the table for clarity
 ALTER TABLE layoffs RENAME TO Layoffs_raw;
+SELECT *
+FROM layoffs_raw;
 
 -- Create a cleaned table with the same structure
 CREATE TABLE Layoffs_cleaned LIKE layoffs_raw;
 INSERT INTO Layoffs_cleaned SELECT * FROM layoffs_raw;
 SELECT * FROM Layoffs_cleaned;
-
-
 
 -- Identify duplicates using  Windows function ROW_NUMBER
 WITH CTE_layoffs AS (
@@ -102,8 +102,11 @@ DELETE FROM layoffs_cleaned2 WHERE total_laid_off IS NULL AND percentage_laid_of
 -- ========================================================
 
 -- 1. Basic Summary
-SELECT * FROM layoffs_cleaned2;
-SELECT MAX(total_laid_off), MAX(percentage_laid_off) FROM layoffs_cleaned2;
+SELECT * 
+FROM layoffs_cleaned2;
+
+SELECT MAX(total_laid_off), MAX(percentage_laid_off) 
+FROM layoffs_cleaned2;
 
 -- 2. Top 5 Companies with the Most Layoffs
 SELECT company, SUM(total_laid_off) AS Sum_layoff
