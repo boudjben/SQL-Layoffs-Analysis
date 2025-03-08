@@ -32,7 +32,7 @@ This project focuses on cleaning and analyzing global layoffs data using SQL. It
 - `Layoffs Data Analytics Project.sql`: SQL script containing all queries for data cleaning and analysis
 - `Layoffs RAW Dataset.csv`: Raw dataset
 - `Layoffs Staging Dataset.csv`: Cleaned dataset 
-- `Layoffs Data Analytics Project.md`: Project documentation
+- `README.md`: Project documentation
 
 ## **🚀 How to Use**
 1. Import the dataset into MySQL.
