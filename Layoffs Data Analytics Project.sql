@@ -14,7 +14,8 @@
 -- ========================================================
 
 -- Load the data
-SELECT * FROM layoffs;
+SELECT * 
+    FROM layoffs;
 
 -- Rename the table for clarity
 ALTER TABLE layoffs RENAME TO Layoffs_raw;
@@ -23,8 +24,10 @@ FROM layoffs_raw;
 
 -- Create a cleaned table with the same structure
 CREATE TABLE Layoffs_cleaned LIKE layoffs_raw;
-INSERT INTO Layoffs_cleaned SELECT * FROM layoffs_raw;
-SELECT * FROM Layoffs_cleaned;
+INSERT INTO Layoffs_cleaned SELECT * 
+    FROM layoffs_raw;
+SELECT *
+    FROM Layoffs_cleaned;
 
 -- Identify duplicates using  Windows function ROW_NUMBER
 WITH CTE_layoffs AS (
@@ -33,7 +36,10 @@ WITH CTE_layoffs AS (
     ) AS Count_rows
     FROM Layoffs_cleaned
 )
-SELECT * FROM CTE_layoffs WHERE Count_rows > 1 ORDER BY company;
+SELECT * 
+    FROM CTE_layoffs 
+    WHERE Count_rows > 1 
+    ORDER BY company;
 
 -- Create a staging table without duplicates
 CREATE TABLE layoffs_cleaned2 (
@@ -56,29 +62,38 @@ SELECT *, ROW_NUMBER() OVER (
 FROM Layoffs_cleaned;
 
 -- Remove duplicates
-DELETE FROM layoffs_cleaned2 WHERE Count_row > 1;
+DELETE FROM layoffs_cleaned2 
+    WHERE Count_row > 1;
 
 -- Drop Count_row column after removing duplicates
-ALTER TABLE layoffs_cleaned2 DROP COLUMN Count_row;
+ALTER TABLE layoffs_cleaned2 
+    DROP COLUMN Count_row;
 
 -- ========================================================
 -- I.2- Data Standardization
 -- ========================================================
 
 -- Trim whitespace from company names
-UPDATE layoffs_cleaned2 SET company = TRIM(company);
+UPDATE layoffs_cleaned2 
+    SET company = TRIM(company);
 
 -- Standardize industry names
-UPDATE layoffs_cleaned2 SET industry = 'Crypto' WHERE industry LIKE 'Crypto%';
+UPDATE layoffs_cleaned2 
+    SET industry = 'Crypto' 
+    WHERE industry LIKE 'Crypto%';
 
 -- Standardize country names
-UPDATE layoffs_cleaned2 SET country = 'United States' WHERE country LIKE 'United States%';
+UPDATE layoffs_cleaned2 
+    SET country = 'United States' 
+    WHERE country LIKE 'United States%';
 
 -- Rename the date column
 ALTER TABLE layoffs_cleaned2 RENAME COLUMN `date` TO Layoff_Date;
 
 -- Convert Layoff_Date from text to DATE format
-UPDATE layoffs_cleaned2 SET Layoff_Date = STR_TO_DATE(Layoff_Date, '%m/%d/%Y');
+UPDATE layoffs_cleaned2 
+    SET Layoff_Date = STR_TO_DATE(Layoff_Date, '%m/%d/%Y');
+
 ALTER TABLE layoffs_cleaned2 MODIFY COLUMN Layoff_Date DATE;
 
 -- ========================================================
@@ -86,16 +101,20 @@ ALTER TABLE layoffs_cleaned2 MODIFY COLUMN Layoff_Date DATE;
 -- ========================================================
 
 -- Replace empty industry values with NULL
-UPDATE layoffs_cleaned2 SET industry = NULL WHERE industry = '';
+UPDATE layoffs_cleaned2 
+    SET industry = NULL 
+    WHERE industry = '';
 
 -- Fill missing industry values using data from the same company using JOIN function
 UPDATE layoffs_cleaned2 T1
-JOIN layoffs_cleaned2 T2 ON T1.company = T2.company AND T1.location = T2.location
+JOIN layoffs_cleaned2 T2 
+    ON T1.company = T2.company AND T1.location = T2.location
 SET T1.industry = T2.industry
 WHERE T1.industry IS NULL AND T2.industry IS NOT NULL;
 
 -- Remove rows where total_laid_off and percentage_laid_off are both NULL
-DELETE FROM layoffs_cleaned2 WHERE total_laid_off IS NULL AND percentage_laid_off IS NULL;
+DELETE FROM layoffs_cleaned2 
+    WHERE total_laid_off IS NULL AND percentage_laid_off IS NULL;
 
 -- ========================================================
 -- II. EXPLORATORY DATA ANALYSIS (EDA)
